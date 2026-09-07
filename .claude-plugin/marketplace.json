@@ -3,11 +3,27 @@
   "owner": {
     "name": "Daniel Calvo"
   },
+  "metadata": {
+    "description": "Paired skills for measuring and fixing how legible a site is to AI agents — llms.txt, AGENTS.md, AI-crawler rules, structured data, content negotiation and agent-friendly errors",
+    "version": "1.0.0"
+  },
   "plugins": [
     {
       "name": "agent-readiness",
       "source": "./",
-      "description": "Audit and remediate a site's AI-agent readiness, with evidence for every claim"
+      "description": "Audit and remediate a site's AI-agent readiness, with evidence for every claim",
+      "version": "1.0.0",
+      "author": {
+        "name": "Daniel Calvo"
+      },
+      "keywords": [
+        "agent-readiness",
+        "llms-txt",
+        "agents-md",
+        "ai-crawlers",
+        "structured-data",
+        "seo"
+      ]
     }
   ]
 }
