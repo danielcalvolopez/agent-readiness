@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+.env
+.env.*
+
+# Run outputs — baselines, reports and plans are per-target, not part of the skill
+agent-readiness-baseline-*.json
+*-remediation-report-*.md

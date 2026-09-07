@@ -1,0 +1,19 @@
+{
+  "name": "agent-readiness",
+  "description": "Audit and remediate a site's AI-agent readiness: llms.txt, AGENTS.md, robots.txt AI-crawler rules, Content-Signal, sitemaps, JSON-LD, trust anchors, markdown content negotiation, agent-friendly 404s and RFC 9457 errors",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Calvo"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agent-readiness",
+    "llms-txt",
+    "agents-md",
+    "seo",
+    "ai-crawlers",
+    "structured-data",
+    "is-agentic",
+    "skills"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "agent-readiness",
+  "owner": {
+    "name": "Daniel Calvo"
+  },
+  "plugins": [
+    {
+      "name": "agent-readiness",
+      "source": "./",
+      "description": "Audit and remediate a site's AI-agent readiness, with evidence for every claim"
+    }
+  ]
+}
