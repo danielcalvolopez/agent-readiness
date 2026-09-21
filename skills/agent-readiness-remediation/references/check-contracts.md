@@ -22,10 +22,10 @@ publishes its full check catalog** — see "The Ora catalog" below — but the
 `issues[]` array carries only failed or partial checks (`id`, `name`, `tier`,
 `result`, `details`, `recommendation`) — passing checks can only be inferred
 from `score_breakdown`'s `passing`/`total` counts per tier, never enumerated
-by ID. Reports are immutable snapshots that refresh only when a visit finds
-them older than roughly 6 hours; the API never launches a scan (404 if none is
-stored yet), so verifying a fix means running `npx is-agentic <host> --json`
-(or the report page's "Rescan" control) and quoting the fresh `scanned_at`
+by ID. Reports are stored snapshots with no age limit. Neither the API nor
+`npx is-agentic` rescans a host that already has one, so verifying a fix means
+running the audit skill's `scripts/isagentic_scan.py` (a forced scan with a
+freshness gate, `verification.md` §2) and quoting the fresh `scanned_at`
 against the baseline's.
 
 **isitagentready.com** (Cloudflare, Inc.'s Agent Readiness Scanner) has no
