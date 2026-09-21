@@ -105,28 +105,21 @@ own rules.
 
 ### is-agentic.com
 
-- Reports are **immutable snapshots**. The official documentation states:
-  "Reports refresh only when a visit finds them older than 6 hours." Running
-  a scan again immediately after a deploy returns the *same stored snapshot*
-  — the deploy has not been observed yet, not failed.
-- **The JSON API never launches a scan.** `GET
-  https://is-agentic.com/api/v1/report?url=<url-encoded target>` only serves
-  whatever is already cached, and returns a `report_not_found` (404) problem
-  response if nothing has ever been scanned for that host. It cannot be used
-  to force a fresh look.
-- **The CLI launches a fresh scan when needed.** `npx is-agentic <domain>
-  --json` (or the report page's "Rescan" control) is the one surface that
-  actually starts a scan and waits for it. This is the command to run to
-  verify a fix — not the raw API call.
+- **Neither the report API nor `npx is-agentic` rescans a host that already
+  has a report.** Both return the last stored snapshot, whatever its age. The
+  documented "refresh after 6 hours" did not hold on 2026-09-21: the CLI
+  returned a 24-day-old report. Waiting does not help.
+- **Rescan only with the audit skill's forced-scan script:**
+  `python3 <audit-skill-dir>/scripts/isagentic_scan.py https://$HOST >
+  rescan.json`. It drives the "Rescan" button's `force=1` stream, waits for
+  the report API to catch up (~5 min), and exits `3` if `scanned_at` still
+  predates the run. Exit `3` means nothing was measured, so the check is
+  `not_verified`. It does not mean the fix failed.
 - **Always quote `scanned_at` from both reports being compared** (baseline
-  and rescan). A score that looks unchanged with an unchanged `scanned_at`
-  timestamp is a cache hit, not a failed fix — do not act on it either way
-  until `scanned_at` has actually advanced past the deploy time.
+  and rescan).
 - Practical sequence: deploy the fix → confirm the deploy is live (not just
-  merged) → wait until the baseline's `scanned_at` is more than ~6 hours old
-  → run `npx is-agentic $HOST --json` → confirm the new `scanned_at` is later
-  than both the deploy time and the baseline `scanned_at` before reading the
-  score or `issues[]`.
+  merged) → run the script → confirm the new `scanned_at` is later than the
+  deploy time before reading the score or `issues[]`.
 
 ### isitagentready.com
 
@@ -279,12 +272,10 @@ exclusion.
    cannot reach. A *reachable* preview host is a different thing: scanning one
    is phase 4.5's prediction step (`references/preview-gate.md`), and it never
    counts as this phase's re-scan.
-2. **The relevant scanner's cache window has passed since the baseline
-   scan.** For is-agentic that means the baseline's `scanned_at` is more
-   than ~6 hours old, or the report page's "Rescan" control was used to force
-   an immediate re-run instead of waiting. For isitagentready there is no
-   documented cache, so precondition 2 is automatically satisfied once
-   precondition 1 holds — do not add an artificial wait there.
+2. **The rescan was actually forced.** For is-agentic, only
+   `isagentic_scan.py` exiting `0` qualifies (§2). No wait makes the stored
+   snapshot refresh by itself. isitagentready scans fresh on every call, so
+   precondition 1 is enough there. Do not add an artificial wait.
 
 Re-scanning before both hold does not produce a "didn't work" signal; it
 produces a stale-snapshot or premature-deploy signal, and looping on it burns

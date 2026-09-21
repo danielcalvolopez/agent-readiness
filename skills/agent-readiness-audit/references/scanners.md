@@ -9,20 +9,32 @@ scanner output wins over this file.
 The scorer most people are actually being graded on. Free, read-only, no key.
 
 ```bash
-# Latest completed report as JSON — does NOT start a scan
-curl -s "https://is-agentic.com/api/v1/report?url=https%3A%2F%2Fexample.com"
-
-# CLI: renders a report, and starts a scan when none exists yet
-npx is-agentic example.com --json
+# The only supported way to get a report in this skill: forced scan + freshness gate
+python3 "$SKILL_DIR/scripts/isagentic_scan.py" https://example.com > isagentic.json
 ```
+
+**Neither the report API nor the CLI will rescan a host that already has a
+report.** Both serve the last stored snapshot with no age limit. The docs'
+"refresh when older than 6 hours" does not hold: on 2026-09-21
+`npx is-agentic www.alkimi.org --json` returned `scanned_at`
+`2026-08-28T11:34:46Z`, and a forced scan of the same site moved the score from
+98 to 60.
+
+What forces a scan is the SSE stream behind the report page's "Rescan" button:
+`GET /api/scan/stream?target=<url-encoded>&force=1` (`Accept:
+text/event-stream`). Wait for the `scan_complete` event (≈20 s); its
+`result.scannedAt` is the new scan time. `GET /api/v1/report` catches up about
+5 minutes later (measured 2026-09-21: forced 10:43:51, visible 10:48:57).
+`scripts/isagentic_scan.py` does all of this and refuses stale output. The
+endpoint is undocumented. If it breaks, the script exits non-zero: report
+is-agentic as `not_verified`, never as the cached number.
 
 - Rate limit: 120 req / 60 s per IP. Errors are RFC 9457 `application/problem+json`
   with a stable `code`.
 - **`report_not_found` (404) is the expected outcome for most non-apex hosts**, not an
   edge case. Reports are per-host: `example.com` having a score tells you nothing about
   `docs.example.com`. If no report exists, say so plainly — never infer a score from
-  the apex — and either start one (`npx is-agentic docs.example.com`, or open
-  `https://is-agentic.com/scan/<host>`) or proceed on local evidence alone.
+  the apex. The forced-scan script creates one.
 - The `issues[]` array contains **only failed and partial checks** (that is the schema's
   `result` enum). A check's absence means it passed *or* was excluded — you cannot tell
   which, and you cannot enumerate passing checks from the API.
@@ -30,8 +42,8 @@ npx is-agentic example.com --json
   `score_breakdown` (`essential` / `recommended` / `bonus`, each with
   `earned`/`available`/`passing`/`total`), and `issues[]` with
   `id`, `name`, `tier`, `result` (`failed` | `partial`), `details`, `recommendation`.
-- Reports are cached ~6 h. A score can move because the site changed *or* because
-  the methodology changed — always quote `scanned_at`.
+- A score can move because the site changed *or* because the methodology
+  changed. Always quote `scanned_at`, and it must fall inside this run.
 - Also available as an MCP server at `https://is-agentic.com/mcp`
   (`is_agentic_get_report`, `is_agentic_get_methodology`, `is_agentic_get_developer_docs`).
 

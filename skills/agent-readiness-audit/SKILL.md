@@ -90,8 +90,21 @@ meaningful, and the scoring models. The three things that bite if you skip it:
 
 - **is-agentic `issues[]` carries only failed and partial checks.** A check's
   absence means it passed *or* was excluded, and you cannot tell which.
-- **Reports are cached ~6 h and the JSON API never launches a scan.** Always
-  quote `scanned_at`.
+- **Every is-agentic number must come from a scan forced in this run.** The
+  report API *and* `npx is-agentic` both return the last stored snapshot,
+  however old — measured 2026-09-21: the CLI exited 0 with a 24-day-old report,
+  and the audit shipped on it. Get the report only through the bundled script:
+
+  ```bash
+  # SKILL_DIR = this skill's own directory, as in step 3
+  python3 "$SKILL_DIR/scripts/isagentic_scan.py" https://example.com > isagentic.json
+  ```
+
+  It forces the scan, waits out the report API's ~5 min lag, and exits `3` if
+  `scanned_at` still predates the run. **Exit `3` is a stop, not a caveat:** do
+  not write a score, a baseline or a plan from that report. Rerun once; if it
+  fails again, report is-agentic as `not_verified` and say why. "It's old, treat
+  as unverified" in a finished report is the failure this rule exists for.
 - **isitagentready scores a `level`, not a percentage**, always scans fresh, and
   never counts `commerce` on a non-commerce site.
 

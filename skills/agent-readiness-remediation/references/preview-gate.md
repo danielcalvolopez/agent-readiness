@@ -137,11 +137,11 @@ alias serves the latest *ready* build, which mid-build is the previous commit.
 
 ## 3. Scan the per-commit URL, not the branch alias
 
-is-agentic caches per host for ~6 h (`verification.md` §2). A per-commit host is
-unique, so its first scan is always fresh — no cache wait on any iteration. A
-branch alias is stable, so a second scan within the window replays the first
-snapshot and reads as "no progress." Use the per-commit URL as the scan target
-and the alias only for discovery.
+is-agentic stores one snapshot per host and replays it until a scan is forced
+(`verification.md` §2). A per-commit host is unique, so its first scan is
+always fresh. A branch alias is stable, so an unforced second scan replays the
+first snapshot and reads as "no progress". Scan the per-commit URL, using
+`isagentic_scan.py` either way, and use the alias only for discovery.
 
 isitagentready has no documented cache; either host works there.
 

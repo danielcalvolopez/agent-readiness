@@ -990,8 +990,8 @@ earlier infrastructure):**
 
 After each phase: `pnpm test && pnpm build` green, run the phase's curl
 matrix against a **production build** (`pnpm build && pnpm start`, not
-`next dev`), merge, deploy, then re-scan (`npx is-agentic <host> --json` or
-the isitagentready `POST /api/scan`) and diff `issues[]`/`checks` by ID
+`next dev`), merge, deploy, then re-scan (the audit skill's `scripts/isagentic_scan.py`, never
+`npx is-agentic`, which replays the stored report, and the isitagentready `POST /api/scan`) and diff `issues[]`/`checks` by ID
 against the dated baseline — quote `scanned_at`/`scannedAt` every time (see
 check-contracts.md's re-scan semantics).
 

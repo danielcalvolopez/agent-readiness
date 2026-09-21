@@ -339,10 +339,10 @@ Re-scan through the `agent-readiness-audit` skill or its tooling; never write
 your own scanner, and never edit the audit skill itself.
 
 Quote `scanned_at` / `scannedAt` on every scan you cite. Re-scan only after
-the fix is deployed and live at the scanned host and the scanner's cache
-window has passed — is-agentic serves an immutable snapshot until roughly 6
-hours old, so an early re-scan reads as "no progress" when nothing was
-measured at all. Loop on the diff, not on the raw score; terminate at a clean
+the fix is deployed and live at the scanned host, and for is-agentic only
+through the audit skill's `scripts/isagentic_scan.py`. The API and the CLI
+replay the stored snapshot with no age limit, so an unforced re-scan reads
+as "no progress" when nothing was measured. Loop on the diff, not on the raw score; terminate at a clean
 diff or an explicit non-`fix-now` classification.
 
 ---
@@ -466,7 +466,7 @@ warning:
 | "I built these commits straight from the plan, so of course they match it" | You are the reader least able to notice the task you silently dropped. Phase 4.4 dispatches someone who was not there. |
 | "I'll summarise what I did so the reviewer has enough context" | That context is exactly what you withhold. Its value is deriving the story from the plan and the diff alone; hand it yours and you get your own blind spot back, in a second voice. |
 | "The reviewer flagged an out-of-scope file, but it was needed" | Then the user confirms it. Phase 2's rule — the agent never widens scope on its own judgment — does not lapse because implementation already happened. |
-| "The scanner is cached but it probably passed" | Nothing was measured. "Probably passed" is `not_verified`, not `fixed`. Wait out the cache window or force a fresh scan. |
+| "The scanner is cached but it probably passed" | Nothing was measured. "Probably passed" is `not_verified`, not `fixed`. Force a fresh scan with `isagentic_scan.py`; waiting never refreshes it. |
 | "This API error change is trivial" | It is the highest-blast-radius change in the set. Audit consumers first; it ships last. |
 | "The Next.js recipe is close enough for this stack" | It is not. Use the check contract plus the generic playbook in the target's own idiom. |
 | "I'll install this small dependency and mention it after" | Explicit approval first, every time. |
